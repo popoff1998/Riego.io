@@ -9,35 +9,29 @@
 #define MY_PORT 5003
 #define MY_MAC_ADDRESS 0xDE, 0xAD, 0xBE, 0xEF, 0xFE, 0xEC
 
-#define MY_INCLUSION_MODE_FEATURE
-#define MY_INCLUSION_BUTTON_FEATURE
-#define MY_INCLUSION_MODE_DURATION 60
-#define MY_INCLUSION_MODE_BUTTON_PIN  3
+//#define MY_INCLUSION_MODE_FEATURE
+//#define MY_INCLUSION_BUTTON_FEATURE
+//#define MY_INCLUSION_MODE_DURATION 60
+//#define MY_INCLUSION_MODE_BUTTON_PIN  3
 
 #include "Riego.h"
 
 //Variables de actuadores
-#define NUMBEROFRELAYS 4
+#define NUMBER_OF_RELAYS 4
 
-struct sRELE Rele [] = {  {13 , "LED", HIGH, LOW, KEEP},
-                          {31 , "RELE GOTEROS ALTOS", LOW, HIGH, SETOFF},
-                          {33 , "RELE ASPERSOR FONDO", LOW, HIGH, SETOFF},
-                          {35 , "LUZ DEL PORCHE", LOW, HIGH, KEEP}
+struct sRELE Rele [] = {  {0, 13 , "LED", HIGH, LOW, KEEP, true},
+                          {1, 31 , "RELE GOTEROS ALTOS", LOW, HIGH, SETOFF, true},
+                          {2, 33 , "RELE ASPERSOR FONDO", LOW, HIGH, SETOFF, true},
+                          {3, 35 , "LUZ DEL PORCHE", LOW, HIGH, KEEP, true}
                        };
 
+//Variables de los sensores
+#define NUMBER_OF_SENSORS 3
 
+struct sSENSOR Sensor [] = {  {7, 3, S_HUM, V_HUM, DDHHTT, "HUMEDAD DHT11", true},
+                              {8, 2, S_TEMP, V_TEMP, DALLAS_18B20, "TEMPERATURA DALLAS", true},
+                              {9, 3, S_TEMP, V_TEMP, DDHHTT, "TEMPERATURA DHT11", true}
+                           };
 
 //Includes especificos de la plataforma
 #include <Ethernet.h>
-
-
-
-
-
-
-
-
-
-
-//void loop() {
-//}
