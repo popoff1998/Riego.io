@@ -1,3 +1,5 @@
+#ifndef W5100_h
+#define W5100_H
 //Defines de configuracion
 #define MY_NODE_ID 5
 #define SKETCH_NAME "Gateway Ethernet"
@@ -28,10 +30,12 @@ struct sRELE Rele [] = {  {0, 13 , "LED", HIGH, LOW, KEEP, true},
 //Variables de los sensores
 #define NUMBER_OF_SENSORS 3
 
-struct sSENSOR Sensor [] = {  {7, 3, S_HUM, V_HUM, DDHHTT, "HUMEDAD DHT11", true},
-                              {8, 2, S_TEMP, V_TEMP, DALLAS_18B20, "TEMPERATURA DALLAS", true},
-                              {9, 3, S_TEMP, V_TEMP, DDHHTT, "TEMPERATURA DHT11", true}
+struct sSENSOR Sensor [] = {  {7, 3, S_HUM, V_HUM, DDHHTT, "HUMEDAD DHT11", 0, true},
+                              {8, 3, S_TEMP, V_TEMP, DDHHTT, "TEMPERATURA DHT11", 0, true},
+                              {9, 2, S_TEMP, V_TEMP, DALLAS_18B20, "TEMPERATURA DALLAS", 0, true}
                            };
 
 //Includes especificos de la plataforma
 #include <Ethernet.h>
+
+#endif

@@ -1,12 +1,6 @@
-//Seleccionar la tarjeta W5100 o USB
-#define W5100GATEWAY
-//#define USBGATEWAY
-
-//#define MY_DEBUG
-#define EXTRADEBUG
-#define DEBUG
-
+#include "platform.h"
 #include "Riego.h"
+#include "globals.h"
 
 #ifdef W5100GATEWAY
   #include "W5100.h"
@@ -17,13 +11,6 @@
 #endif
 
 #include <MySensors.h>
-//Mensaje global
-//MyMessage msg(0,0);
-
-//OJO: Mirar donde pongo esto despues ....
-DHT_Unified dht(3, DHT11);
-sensors_event_t event;
-
 
 void initRelays(const sRELE Rele[], int nRelays)
 {
@@ -77,21 +64,22 @@ void presentRelays(const sRELE Rele[], int nRelays)
   }
 }
 
-void initSensors(const sSENSOR Sensor[], int nSensors)
+void initSensors(sSENSOR Sensor[], int nSensors)
 {
   for (int i=0; i<nSensors; i++) {
     if (Sensor[i].enabled) {
+      //Instanciamos un nuevo msg para cada sensor
+      Sensor[i].msg = new MyMessage(Sensor[i].id,Sensor[i].MSmessageType);
       switch(Sensor[i].HWtype) {
         case DDHHTT: {
-          //De momento contemplo un solo sensor DHT11
-          //Controlo con un flag que no se invoque mas de una vez
-          dht.begin();
+          setup_sensor_DHT11(Sensor[i]);
         } break;
       }
     }
   }
 }
-void presentSensors(const sSENSOR Sensor[], int nSensors)
+
+void presentSensors(sSENSOR Sensor[], int nSensors)
 {
   for (int i=0; i<nSensors; i++) {
     if (Sensor[i].enabled) {
@@ -142,12 +130,12 @@ void setup()
    Serial.println("End call Setup");
 }
 
-MyMessage msg(0,0);
+//MyMessage msg(0,0);
 
 void loop() {
   if (!Presented)
   {
-    #ifdef DEBUG:
+    #ifdef DEBUG
       Serial.println("Sensores aun no presentados, saliendo de loop");
     #endif
     wait(POLL_TIME);
@@ -157,52 +145,19 @@ void loop() {
   //Bucle para procesar todos los sensores
   for (int i=0; i<NUMBER_OF_SENSORS; i++) {
     //Creamos el mensaje
-    msg.clear();
     if(Sensor[i].enabled) {
-      msg.setSensor(Sensor[i].id);
-
       switch(Sensor[i].HWtype) {
         case DALLAS_18B20:
         {
-          #ifdef TEMP
-            OneWire oneWire(Sensor[i].pin);
-            DallasTemperature sensors(&oneWire);
-            Serial.print("Solicitando temperaturas... ");
-            sensors.requestTemperatures();
-            float temperatura = sensors.getTempCByIndex(0);
-            Serial.print(temperatura);
-            msg.setType(Sensor[i].MSmessageType);
-            send(msg.set(temperatura,1));
-            Serial.println(" grados");
+          #ifdef DALLAS_18B20_TEMP
+            process_sensor_18B20(Sensor[i]);
           #endif
         } break;
 
         case DDHHTT:
         {
           #ifdef SENSOR_DHT11
-            //Debemos procesar independientemente el de humedad y temperatura
-            switch(Sensor[i].MSpresentType) {
-              case S_TEMP:
-              {
-                dht.temperature().getEvent(&event);
-                #ifdef DEBUG:
-                  Serial.print("Temperatura DHT11: ");
-                  Serial.println(event.temperature);
-                #endif
-                msg.setType(V_TEMP);
-                send(msg.set(event.temperature,1));
-              } break;
-              case S_HUM:
-              {
-                dht.humidity().getEvent(&event);
-                #ifdef DEBUG
-                  Serial.print("Humedad DHT11: ");
-                  Serial.println(event.relative_humidity);
-                #endif
-                msg.setType(V_HUM);
-                send(msg.set(event.relative_humidity,1));
-            } break;
-          }
+            process_sensor_DHT11(Sensor[i]);
           #endif
         } break;
       }

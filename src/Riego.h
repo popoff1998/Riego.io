@@ -1,9 +1,8 @@
 //Fichero de include comun a USB y W5100
 #ifndef Riego_h
 #define Riego_h
-
+#include "platform.h"
 #include <Arduino.h>
-#include "Sensors_types.h"
 
 #ifdef W5100GATEWAY
   #include "W5100_Sensors.h"
@@ -11,20 +10,9 @@
   #include "USB_Sensors.h"
 #endif
 
-//Por probar
 #include <core/MyMessage.h>
 
 //Globales para los diferentes tipos de sensores. Mirar más adelante para ver si soporta varios
-#ifdef TEMP
-  #include <DallasTemperature.h>
-  #include <OneWire.h>
-#endif
-
-#ifdef SENSOR_DHT11
-  #include <Adafruit_Sensor.h>
-  #include <DHT.h>
-  #include <DHT_U.h>
-#endif
 
 //Estructura de reles
 struct sRELE {
@@ -44,6 +32,7 @@ struct sSENSOR {
   int MSmessageType;
   int HWtype;
   char desc[50];
+  MyMessage *msg;
   bool enabled;
 };
 
@@ -59,7 +48,14 @@ struct sSENSOR {
 #define DALLAS_18B20  0
 #define DDHHTT        1
 
-//Variables Globales
-bool Presented = false;
+//Opciones de depuracion
+//#define MY_DEBUG
+#define EXTRADEBUG
+#define DEBUG
+
+//Funciones
+void process_sensor_DHT11(sSENSOR);
+void setup_sensor_DHT11(sSENSOR);
+void process_sensor_18B20(sSENSOR);
 
 #endif
