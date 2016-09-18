@@ -12,9 +12,6 @@
 
 #include <MySensors.h>
 
-//Algunas globales que ya vere si las meto en globals.h
-MyMessage pollTimeMsg(CHILD_ID_POLL_TIME, V_TEXT);
-
 void initRelays(const sRELE Rele[], int nRelays)
 {
   for (int i=0 ; i<nRelays; i++) {
@@ -70,14 +67,19 @@ void presentRelays(const sRELE Rele[], int nRelays)
 void initSensors(sSENSOR Sensor[], int nSensors)
 {
   for (int i=0; i<nSensors; i++) {
-    if (Sensor[i].enabled) {
+    if (Sensor[i].flags.enabled) {
       //Instanciamos un nuevo msg para cada sensor
       Sensor[i].msg = new MyMessage(Sensor[i].id,Sensor[i].MSmessageType);
       switch(Sensor[i].HWtype) {
         #ifdef HAVE_DHT11
-        case DDHHTT: {
-          setup_sensor_DHT11(Sensor[i]);
-        } break;
+          case DDHHTT: {
+            setup_sensor_DHT11(Sensor[i]);
+          } break;
+        #endif
+        #ifdef HAVE_INFO
+          case INFO: {
+            setup_sensor_INFO(Sensor[i]);
+          } break;
         #endif
       }
     }
@@ -87,7 +89,7 @@ void initSensors(sSENSOR Sensor[], int nSensors)
 void presentSensors(sSENSOR Sensor[], int nSensors)
 {
   for (int i=0; i<nSensors; i++) {
-    if (Sensor[i].enabled) {
+    if (Sensor[i].flags.enabled) {
       Serial.print("Presentando sensor: ");
       Serial.print(Sensor[i].id);
       Serial.print(" ");
@@ -98,7 +100,7 @@ void presentSensors(sSENSOR Sensor[], int nSensors)
 }
 
 void receive(const MyMessage &message) {
-  // Solo esperamos mensajes V_LIGTH de momento, pero lo chequeamos por si acaso.
+  // Procesamos los mensajes V_LIGTH
   if (message.type==V_LIGHT) {
     // Cambiar estado del rele
     digitalWrite(Rele[message.sensor].pin, message.getBool()?Rele[message.sensor].ON:Rele[message.sensor].OFF);
@@ -106,17 +108,18 @@ void receive(const MyMessage &message) {
     saveState(message.sensor, message.getBool());
     #ifdef DEBUG
      // Escribir informacion de debug
-     Serial.print("Cambio entrante para sensor:");
-     Serial.print(message.sensor);
-     Serial.print(", Nuevo status: ");
-     Serial.println(message.getBool());
+     Serial.print("Cambio entrante para sensor:"); Serial.print(message.sensor); Serial.print(", Nuevo status: "); Serial.println(message.getBool());
     #endif
   }
   //Procesamos los mensajes V_TEXT
   if (message.type==V_TEXT) {
-    Serial.print("Mensaje V_TEXT ");
-    Serial.println(message.getInt());
-    pollTime = message.getLong();
+    #ifdef EXTRADEBUG
+      Serial.print("Mensaje V_TEXT sensor: ");
+      Serial.print(message.sensor);
+      Serial.print(" valor: ");
+      Serial.println(message.getLong());
+    #endif
+    receive_sensor_INFO(message);
   }
 }
 
@@ -128,9 +131,6 @@ void presentation()
   sendSketchInfo(SKETCH_NAME, SKETCH_VERSION);
   presentRelays(Rele,NUMBER_OF_RELAYS);
   presentSensors(Sensor,NUMBER_OF_SENSORS);
-  //Presentamos los pseudo sensores para informacion
-  present(CHILD_ID_POLL_TIME, S_INFO,"POLL_TIME");
-  send(pollTimeMsg.set(pollTime));
   Presented = true;
   Serial.println("Finalizando presentacion");
 }
@@ -139,6 +139,7 @@ void setup()
 {
   //Inicializamos el tiempo de pollin al valor builtin
   pollTime = POLL_TIME;
+  Presented = false;
   //Para los reles
    Serial.println("start call SETUP");
    initRelays(Rele,NUMBER_OF_RELAYS);
@@ -157,35 +158,37 @@ void loop() {
     wait(POLL_TIME);
     return;
   }
-
-  //Recuperamos los valores de informacion del controller
-  request(CHILD_ID_POLL_TIME, V_TEXT);
-
-  //Bucle para procesar todos los sensores
+    //Bucle para procesar todos los sensores
   for (int i=0; i<NUMBER_OF_SENSORS; i++) {
     //Creamos el mensaje
-    if(Sensor[i].enabled) {
+    if(Sensor[i].flags.enabled) {
       switch(Sensor[i].HWtype) {
         case DALLAS_18B20:
-        {
           #ifdef HAVE_DALLAS_18B20
             process_sensor_18B20(Sensor[i]);
           #endif
-        } break;
-
+          break;
         case DDHHTT:
-        {
           #ifdef HAVE_DHT11
             process_sensor_DHT11(Sensor[i]);
           #endif
-        } break;
-
+          break;
         case S_PHOTORESISTOR:
-        {
           #ifdef HAVE_PHOTORESISTOR
             process_sensor_PHOTORESISTOR(Sensor[i]);
           #endif
-        }
+          break;
+        case INFO:
+          #ifdef HAVE_INFO
+            if(Sensor[i].flags.requestable) {
+              #ifdef EXTRADEBUG
+                Serial.print("Requesting sensor: "); Serial.println(i);
+              #endif
+              request(Sensor[i].id,V_TEXT);
+            }
+            process_sensor_INFO(Sensor[i]);
+          #endif
+          break;
       }
     }
   }

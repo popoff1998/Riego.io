@@ -1,6 +1,7 @@
 //Debemos procesar independientemente el de humedad y temperatura
 #include "platform.h"
 #include "Riego.h"
+#include "externs.h"
 
 #ifdef W5100GATEWAY
   #include "W5100_Sensors.h"
@@ -9,10 +10,64 @@
 #endif
 
 #include <core/MySensorsCore.h>
+#include <MemoryFree.h>
 
 //Defines de parametros de sensores
 #define LDR_VCC 360
 #define LDR_LUX 320
+
+//Funciones Utilitarias
+
+  //Devuelve el elemento de la estructura de sensores a partir del id
+int getSensorIdxFromId(int id)
+{
+  for(int i=0; i<NUMBER_OF_SENSORS;i++) {
+    if(Sensor[i].id == id) return i;
+  }
+  return NOTFOUND;
+}
+
+//Para pseudo sensores tio INFO
+#ifdef HAVE_INFO
+void process_sensor_INFO(sSENSOR _Sensor)
+{
+  switch(_Sensor.HWsubtype) {
+    case S_POLL_TIME:
+      #ifdef DEBUG
+        Serial.print("---> ");Serial.print(_Sensor.desc); Serial.print(": ");Serial.println(pollTime);
+      #endif
+      send(_Sensor.msg->set(pollTime));
+      break;
+    case S_MEMORY_FREE:
+      int free_memory = freeMemory();
+      #ifdef DEBUG
+        Serial.print("---> ");Serial.print(_Sensor.desc); Serial.print(": ");Serial.println(free_memory);
+      #endif
+      send(_Sensor.msg->set(free_memory));
+      break;
+  }
+}
+
+void setup_sensor_INFO(sSENSOR _Sensor)
+{
+  if(_Sensor.HWsubtype == S_POLL_TIME) send(_Sensor.msg->set(POLL_TIME));
+}
+
+void receive_sensor_INFO(MyMessage msg)
+{
+  int i = getSensorIdxFromId(msg.sensor);
+  if(i==NOTFOUND) return;
+
+  if(Sensor[i].HWsubtype == S_POLL_TIME)
+  {
+    pollTime=msg.getLong();
+    #ifdef EXTRADEBUG
+      Serial.print("Cambiando valor de pollTime a: ");
+      Serial.println(pollTime);
+    #endif
+  }
+}
+#endif
 
 #ifdef HAVE_DHT11
   // SENSOR_DHT11

@@ -28,12 +28,15 @@ struct sRELE Rele [] = {  {0, 13 , "LED", HIGH, LOW, KEEP, true},
                        };
 
 //Variables de los sensores
-#define NUMBER_OF_SENSORS 4
+int NUMBER_OF_SENSORS=6;
 
-struct sSENSOR Sensor [] = {  {7, 3, S_HUM, V_HUM, DDHHTT, "HUMEDAD DHT11", 0, true},
-                              {8, 3, S_TEMP, V_TEMP, DDHHTT, "TEMPERATURA DHT11", 0, true},
-                              {9, 2, S_TEMP, V_TEMP, DALLAS_18B20, "TEMPERATURA DALLAS", 0, true},
-                              {10, A0, S_LIGHT_LEVEL, V_LEVEL, S_PHOTORESISTOR, "PHOTORESISTOR", 0, true}
+struct sSENSOR Sensor [] = {  {7, 3, S_HUM, V_HUM, DDHHTT, NONE, "HUMEDAD DHT11", 0, ENABLED},
+                              {8, 3, S_TEMP, V_TEMP, DDHHTT, NONE, "TEMPERATURA DHT11", 0, ENABLED},
+                              {9, 2, S_TEMP, V_TEMP, DALLAS_18B20, NONE, "TEMPERATURA DALLAS", 0, ENABLED},
+                              {10, A0, S_LIGHT_LEVEL, V_LEVEL, S_PHOTORESISTOR, NONE, "PHOTORESISTOR", 0, ENABLED},
+//Aquí vienen los pseudosensores para informacion
+                              {20, 0, S_INFO, V_TEXT, INFO, S_POLL_TIME, "POLL TIME", 0, ENABLED | REQUESTABLE},
+                              {21, 0, S_INFO, V_TEXT, INFO, S_MEMORY_FREE, "MEMORY FREE", 0, ENABLED}
                            };
 
 //Includes especificos de la plataforma

@@ -2,7 +2,7 @@
 #ifndef globals_h
 #define globals_h
 
-bool Presented = false;
+bool Presented;
 long pollTime;
 
 #endif
