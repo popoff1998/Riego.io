@@ -8,63 +8,85 @@
   #include "USB_Sensors.h"
 #endif
 
-//#include <MySensors.h>
-
-
 #include <core/MySensorsCore.h>
 
-//SENSOR_DALLAS_18B20
-  #include <DallasTemperature.h>
-  #include <OneWire.h>
+//Defines de parametros de sensores
+#define LDR_VCC 360
+#define LDR_LUX 320
 
-// SENSOR_DHT11
+#ifdef HAVE_DHT11
+  // SENSOR_DHT11
   #include <Adafruit_Sensor.h>
   #include <DHT.h>
   #include <DHT_U.h>
+  //OJO: Mirar donde pongo esto despues ....
+  DHT_Unified dht(3, DHT11);
+  sensors_event_t event;
 
-//OJO: Mirar donde pongo esto despues ....
-DHT_Unified dht(3, DHT11);
-sensors_event_t event;
-
-void setup_sensor_DHT11(sSENSOR _Sensor)
-{
-  dht.begin();
-}
-
-void process_sensor_DHT11(sSENSOR _Sensor)
-{
-  switch(_Sensor.MSpresentType) {
-    case S_TEMP:
-    {
-      dht.temperature().getEvent(&event);
-      #ifdef DEBUG
-        Serial.print("Temperatura DHT11: ");
-        Serial.println(event.temperature);
-      #endif
-      send(_Sensor.msg->set(event.temperature,1));
-    } break;
-    case S_HUM:
-    {
-      dht.humidity().getEvent(&event);
-      #ifdef DEBUG
-        Serial.print("Humedad DHT11: ");
-        Serial.println(event.relative_humidity);
-      #endif
-      send(_Sensor.msg->set(event.relative_humidity,1));
-    } break;
+  void process_sensor_DHT11(sSENSOR _Sensor)
+  {
+    switch(_Sensor.MSpresentType) {
+      case S_TEMP:
+      {
+        dht.temperature().getEvent(&event);
+        #ifdef DEBUG
+          Serial.print("Temperatura DHT11: ");
+          Serial.println(event.temperature);
+        #endif
+        send(_Sensor.msg->set(event.temperature,1));
+      } break;
+      case S_HUM:
+      {
+        dht.humidity().getEvent(&event);
+        #ifdef DEBUG
+          Serial.print("Humedad DHT11: ");
+          Serial.println(event.relative_humidity);
+        #endif
+        send(_Sensor.msg->set(event.relative_humidity,1));
+      } break;
+    }
   }
-}
 
-void process_sensor_18B20(sSENSOR _Sensor)
-{
-  OneWire oneWire(_Sensor.pin);
-  DallasTemperature sensors(&oneWire);
-  sensors.requestTemperatures();
-  float temperatura = sensors.getTempCByIndex(0);
-  #ifdef DEBUG
-    Serial.print("Temperatura Dallas: ");
-    Serial.print(temperatura);
-    Serial.println(" grados");
-  #endif
-  send(_Sensor.msg->set(temperatura,1));
-}
+  void setup_sensor_DHT11(sSENSOR _Sensor)
+  {
+    dht.begin();
+  }
+#endif
+
+#ifdef HAVE_DALLAS_18B20
+  //SENSOR_DALLAS_18B20
+  #include <DallasTemperature.h>
+  #include <OneWire.h>
+
+  void process_sensor_18B20(sSENSOR _Sensor)
+  {
+    OneWire oneWire(_Sensor.pin);
+    DallasTemperature sensors(&oneWire);
+    sensors.requestTemperatures();
+    float temperatura = sensors.getTempCByIndex(0);
+    #ifdef DEBUG
+      Serial.print("Temperatura Dallas: ");
+      Serial.print(temperatura);
+      Serial.println(" grados");
+    #endif
+    send(_Sensor.msg->set(temperatura,1));
+  }
+#endif
+
+#ifdef HAVE_PHOTORESISTOR
+  void setup_sensor_PHOTORESISTOR(sSENSOR _Sensor)
+  {
+  }
+
+  void process_sensor_PHOTORESISTOR(sSENSOR _Sensor)
+  {
+    int sensorValue =  analogRead(_Sensor.pin);
+    float lux = (float) LDR_LUX * ( (1024.0 - (float) sensorValue) / (1024.0 - (float) LDR_VCC) );
+    #ifdef DEBUG
+      Serial.print(sensorValue);
+      Serial.print(" Lux PHOTORESISTOR: ");
+      Serial.println(lux);
+    #endif
+    send(_Sensor.msg->set(lux,1));
+  }
+#endif

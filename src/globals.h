@@ -3,5 +3,6 @@
 #define globals_h
 
 bool Presented = false;
+long pollTime;
 
 #endif

@@ -28,11 +28,12 @@ struct sRELE Rele [] = {  {0, 13 , "LED", HIGH, LOW, KEEP, true},
                        };
 
 //Variables de los sensores
-#define NUMBER_OF_SENSORS 3
+#define NUMBER_OF_SENSORS 4
 
 struct sSENSOR Sensor [] = {  {7, 3, S_HUM, V_HUM, DDHHTT, "HUMEDAD DHT11", 0, true},
                               {8, 3, S_TEMP, V_TEMP, DDHHTT, "TEMPERATURA DHT11", 0, true},
-                              {9, 2, S_TEMP, V_TEMP, DALLAS_18B20, "TEMPERATURA DALLAS", 0, true}
+                              {9, 2, S_TEMP, V_TEMP, DALLAS_18B20, "TEMPERATURA DALLAS", 0, true},
+                              {10, A0, S_LIGHT_LEVEL, V_LEVEL, S_PHOTORESISTOR, "PHOTORESISTOR", 0, true}
                            };
 
 //Includes especificos de la plataforma

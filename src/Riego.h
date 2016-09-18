@@ -44,18 +44,24 @@ struct sSENSOR {
 //defines de comportamiento
 #define POLL_TIME 10000 //msec para chequear los sensores
 
+//ID de childs para conseguir informacion del controller
+#define CHILD_ID_POLL_TIME 64
+
 //Defines de sensor para procesar
 #define DALLAS_18B20  0
 #define DDHHTT        1
+#define S_PHOTORESISTOR 3
 
 //Opciones de depuracion
-//#define MY_DEBUG
+#define MY_DEBUG
 #define EXTRADEBUG
 #define DEBUG
 
 //Funciones
-void process_sensor_DHT11(sSENSOR);
 void setup_sensor_DHT11(sSENSOR);
+
+void process_sensor_DHT11(sSENSOR);
 void process_sensor_18B20(sSENSOR);
+void process_sensor_PHOTORESISTOR(sSENSOR);
 
 #endif

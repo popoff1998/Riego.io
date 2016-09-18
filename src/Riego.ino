@@ -12,6 +12,9 @@
 
 #include <MySensors.h>
 
+//Algunas globales que ya vere si las meto en globals.h
+MyMessage pollTimeMsg(CHILD_ID_POLL_TIME, V_TEXT);
+
 void initRelays(const sRELE Rele[], int nRelays)
 {
   for (int i=0 ; i<nRelays; i++) {
@@ -71,9 +74,11 @@ void initSensors(sSENSOR Sensor[], int nSensors)
       //Instanciamos un nuevo msg para cada sensor
       Sensor[i].msg = new MyMessage(Sensor[i].id,Sensor[i].MSmessageType);
       switch(Sensor[i].HWtype) {
+        #ifdef HAVE_DHT11
         case DDHHTT: {
           setup_sensor_DHT11(Sensor[i]);
         } break;
+        #endif
       }
     }
   }
@@ -107,6 +112,12 @@ void receive(const MyMessage &message) {
      Serial.println(message.getBool());
     #endif
   }
+  //Procesamos los mensajes V_TEXT
+  if (message.type==V_TEXT) {
+    Serial.print("Mensaje V_TEXT ");
+    Serial.println(message.getInt());
+    pollTime = message.getLong();
+  }
 }
 
 void presentation()
@@ -117,12 +128,17 @@ void presentation()
   sendSketchInfo(SKETCH_NAME, SKETCH_VERSION);
   presentRelays(Rele,NUMBER_OF_RELAYS);
   presentSensors(Sensor,NUMBER_OF_SENSORS);
+  //Presentamos los pseudo sensores para informacion
+  present(CHILD_ID_POLL_TIME, S_INFO,"POLL_TIME");
+  send(pollTimeMsg.set(pollTime));
   Presented = true;
   Serial.println("Finalizando presentacion");
 }
 
 void setup()
 {
+  //Inicializamos el tiempo de pollin al valor builtin
+  pollTime = POLL_TIME;
   //Para los reles
    Serial.println("start call SETUP");
    initRelays(Rele,NUMBER_OF_RELAYS);
@@ -142,6 +158,9 @@ void loop() {
     return;
   }
 
+  //Recuperamos los valores de informacion del controller
+  request(CHILD_ID_POLL_TIME, V_TEXT);
+
   //Bucle para procesar todos los sensores
   for (int i=0; i<NUMBER_OF_SENSORS; i++) {
     //Creamos el mensaje
@@ -149,19 +168,26 @@ void loop() {
       switch(Sensor[i].HWtype) {
         case DALLAS_18B20:
         {
-          #ifdef DALLAS_18B20_TEMP
+          #ifdef HAVE_DALLAS_18B20
             process_sensor_18B20(Sensor[i]);
           #endif
         } break;
 
         case DDHHTT:
         {
-          #ifdef SENSOR_DHT11
+          #ifdef HAVE_DHT11
             process_sensor_DHT11(Sensor[i]);
           #endif
         } break;
+
+        case S_PHOTORESISTOR:
+        {
+          #ifdef HAVE_PHOTORESISTOR
+            process_sensor_PHOTORESISTOR(Sensor[i]);
+          #endif
+        }
       }
     }
   }
-  wait(POLL_TIME);
+  wait(pollTime);
 }
