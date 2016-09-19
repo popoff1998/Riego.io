@@ -28,10 +28,7 @@ void initRelays(const sRELE Rele[], int nRelays)
           break;
         case KEEP:
             #ifdef EXTRADEBUG
-              Serial.print("Rele ");
-              Serial.print(i);
-              Serial.print(" es en la eeprom ");
-              Serial.println(loadState(i));
+              Serial.print("Rele ");Serial.print(i);Serial.print(" es en la eeprom ");Serial.println(loadState(i));
             #endif
           digitalWrite(Rele[i].pin, loadState(i)?Rele[i].ON:Rele[i].OFF);
           break;
@@ -54,10 +51,7 @@ void presentRelays(const sRELE Rele[], int nRelays)
       // Le tenemos que mandar el estado que tiene.
       MyMessage relayMsg(Rele[i].id,S_LIGHT);
         #ifdef EXTRADEBUG
-          Serial.print("El estado del rele ");
-          Serial.print(Rele[i].desc);
-          Serial.print(" es: ");
-          Serial.println(digitalRead(Rele[i].pin));
+          Serial.print("El estado del rele ");Serial.print(Rele[i].desc);Serial.print(" es: ");Serial.println(digitalRead(Rele[i].pin));
         #endif
       send(relayMsg.set(digitalRead(Rele[i].pin)?Rele[i].ON:Rele[i].OFF));
     }
@@ -90,10 +84,7 @@ void presentSensors(sSENSOR Sensor[], int nSensors)
 {
   for (int i=0; i<nSensors; i++) {
     if (Sensor[i].flags.enabled) {
-      Serial.print("Presentando sensor: ");
-      Serial.print(Sensor[i].id);
-      Serial.print(" ");
-      Serial.println(Sensor[i].desc);
+      Serial.print("Presentando sensor: ");Serial.print(Sensor[i].id);Serial.print(" ");Serial.println(Sensor[i].desc);
       present(Sensor[i].id,Sensor[i].MSpresentType,Sensor[i].desc);
     }
   }
@@ -114,10 +105,7 @@ void receive(const MyMessage &message) {
   //Procesamos los mensajes V_TEXT
   if (message.type==V_TEXT) {
     #ifdef EXTRADEBUG
-      Serial.print("Mensaje V_TEXT sensor: ");
-      Serial.print(message.sensor);
-      Serial.print(" valor: ");
-      Serial.println(message.getLong());
+      Serial.print("Mensaje V_TEXT sensor: ");Serial.print(message.sensor);Serial.print(" valor: ");Serial.println(message.getLong());
     #endif
     receive_sensor_INFO(message);
   }
