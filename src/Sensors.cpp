@@ -62,8 +62,7 @@ void receive_sensor_INFO(MyMessage msg)
   {
     pollTime=msg.getLong();
     #ifdef EXTRADEBUG
-      Serial.print("Cambiando valor de pollTime a: ");
-      Serial.println(pollTime);
+      Serial.print("Cambiando valor de pollTime a: ");Serial.println(pollTime);
     #endif
   }
 }
@@ -85,8 +84,7 @@ void receive_sensor_INFO(MyMessage msg)
       {
         dht.temperature().getEvent(&event);
         #ifdef DEBUG
-          Serial.print("Temperatura DHT11: ");
-          Serial.println(event.temperature);
+          Serial.print("Temperatura DHT11: ");Serial.println(event.temperature);
         #endif
         send(_Sensor.msg->set(event.temperature,1));
       } break;
@@ -94,8 +92,7 @@ void receive_sensor_INFO(MyMessage msg)
       {
         dht.humidity().getEvent(&event);
         #ifdef DEBUG
-          Serial.print("Humedad DHT11: ");
-          Serial.println(event.relative_humidity);
+          Serial.print("Humedad DHT11: ");Serial.println(event.relative_humidity);
         #endif
         send(_Sensor.msg->set(event.relative_humidity,1));
       } break;
@@ -120,9 +117,7 @@ void receive_sensor_INFO(MyMessage msg)
     sensors.requestTemperatures();
     float temperatura = sensors.getTempCByIndex(0);
     #ifdef DEBUG
-      Serial.print("Temperatura Dallas: ");
-      Serial.print(temperatura);
-      Serial.println(" grados");
+      Serial.print("Temperatura Dallas: ");Serial.print(temperatura);Serial.println(" grados");
     #endif
     send(_Sensor.msg->set(temperatura,1));
   }
@@ -138,9 +133,7 @@ void receive_sensor_INFO(MyMessage msg)
     int sensorValue =  analogRead(_Sensor.pin);
     float lux = (float) LDR_LUX * ( (1024.0 - (float) sensorValue) / (1024.0 - (float) LDR_VCC) );
     #ifdef DEBUG
-      Serial.print(sensorValue);
-      Serial.print(" Lux PHOTORESISTOR: ");
-      Serial.println(lux);
+      Serial.print(" Lux PHOTORESISTOR: ");Serial.println(lux);
     #endif
     send(_Sensor.msg->set(lux,1));
   }
