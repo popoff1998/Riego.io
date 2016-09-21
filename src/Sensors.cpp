@@ -27,6 +27,42 @@ int getSensorIdxFromId(int id)
   return NOTFOUND;
 }
 
+//Temperatura arduino
+double GetArduinoTemp(void)
+{
+  unsigned int wADC;
+  double t;
+
+  // The internal temperature has to be used
+  // with the internal reference of 1.1V.
+  // Channel 8 can not be selected with
+  // the analogRead function yet.
+  // Set the internal reference and mux.
+  ADMUX = (_BV(REFS1) | _BV(REFS0) | _BV(MUX3));
+  ADCSRA |= _BV(ADEN);  // enable the ADC
+  delay(20);            // wait for voltages to become stable.
+  ADCSRA |= _BV(ADSC);  // Start the ADC
+  // Detect end-of-conversion
+  while (bit_is_set(ADCSRA,ADSC));
+  // Reading register "ADCW" takes care of how to read ADCL and ADCH.
+  wADC = ADCW;
+  // The offset of 324.31 could be wrong. It is just an indication.
+  t = (wADC - 337.0 ) / 1.22;
+  // The returned temperature is in degrees Celsius.
+  return (t);
+}
+
+void process_sensor_arduino_temp(sSENSOR _Sensor)
+{
+
+  double temperatura = GetArduinoTemp();
+  #ifdef DEBUG
+    Serial.print("Temperatura Arduino: "); Serial.print(temperatura); Serial.println(" grados");
+  #endif
+  send(_Sensor.msg->set(temperatura,1));
+}
+
+
 //Para pseudo sensores tio INFO
 #ifdef HAVE_INFO
 void process_sensor_INFO(sSENSOR _Sensor)

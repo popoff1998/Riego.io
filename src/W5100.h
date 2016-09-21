@@ -34,6 +34,7 @@ struct sSENSOR Sensor [] = {  {7, 3, S_HUM, V_HUM, DDHHTT, NONE, "HUMEDAD DHT11"
                               {8, 3, S_TEMP, V_TEMP, DDHHTT, NONE, "TEMPERATURA DHT11", 0, ENABLED},
                               {9, 2, S_TEMP, V_TEMP, DALLAS_18B20, NONE, "TEMPERATURA DALLAS", 0, ENABLED},
                               {10, A0, S_LIGHT_LEVEL, V_LEVEL, S_PHOTORESISTOR, NONE, "PHOTORESISTOR", 0, ENABLED},
+//                              {11, A0, S_TEMP, V_TEMP, S_ARDUINO_TEMP, NONE, "W5100 TEMP", 0, ENABLED},
 //Aquí vienen los pseudosensores para informacion
                               {20, 0, S_INFO, V_TEXT, INFO, S_POLL_TIME, "POLL TIME", 0, ENABLED | REQUESTABLE},
                               {21, 0, S_INFO, V_TEXT, INFO, S_MEMORY_FREE, "MEMORY FREE", 0, ENABLED}

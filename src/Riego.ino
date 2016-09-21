@@ -175,7 +175,10 @@ void loop() {
               request(Sensor[i].id,V_TEXT);
             }
             process_sensor_INFO(Sensor[i]);
+            break;
           #endif
+        case S_ARDUINO_TEMP:
+          process_sensor_arduino_temp(Sensor[i]);
           break;
       }
     }

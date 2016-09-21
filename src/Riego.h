@@ -77,6 +77,8 @@ struct sSENSOR {
 #define DDHHTT        1
 #define S_PHOTORESISTOR 3
 #define INFO 4
+#define S_ARDUINO_TEMP 5
+
 //Defines de tios HWsubtype
 #define NONE 0
 #define S_POLL_TIME 1
@@ -95,6 +97,8 @@ void process_sensor_DHT11(sSENSOR);
 void process_sensor_18B20(sSENSOR);
 void process_sensor_PHOTORESISTOR(sSENSOR);
 void process_sensor_INFO(sSENSOR);
+void process_sensor_arduino_temp(sSENSOR);
+
 
 void receive_sensor_INFO(MyMessage);
 
