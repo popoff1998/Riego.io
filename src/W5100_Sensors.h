@@ -5,5 +5,6 @@
 #define HAVE_DHT11
 #define HAVE_PHOTORESISTOR
 #define HAVE_INFO
+#define HAVE_COUNTER
 
 #endif

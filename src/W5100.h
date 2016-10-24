@@ -40,6 +40,7 @@ struct sSENSOR Sensor [] = {  {7, 3, S_HUM, V_HUM, DDHHTT, NONE, "HUMEDAD DHT11"
                               {21, 0, S_INFO, V_TEXT, INFO, S_MEMORY_FREE, "MEMORY FREE", 0, ENABLED}
                            };
 
+
 //Includes especificos de la plataforma
 #include <Ethernet.h>
 

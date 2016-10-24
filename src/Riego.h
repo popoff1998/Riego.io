@@ -3,6 +3,7 @@
 #define Riego_h
 #include "platform.h"
 #include <Arduino.h>
+#include <Time.h>
 
 #ifdef W5100GATEWAY
   #include "W5100_Sensors.h"
@@ -58,6 +59,21 @@ struct sSENSOR {
   S_FLAGS flags;
 };
 
+struct sCOUNTER {
+  int id;
+  int pin;
+  int pulsesForUnit;
+  unsigned long  pulses;
+  double  volume;
+  time_t last;
+  float flow;
+  char unitDesc[20];
+  char desc[50];
+  int mode;
+  MyMessage *msgVolume;
+  MyMessage *msgFlow;
+};
+
 //Defines varios
 #define NOTFOUND 255
 
@@ -101,5 +117,8 @@ void process_sensor_arduino_temp(sSENSOR);
 
 
 void receive_sensor_INFO(MyMessage);
+
+void setup_counter();
+void process_counter();
 
 #endif

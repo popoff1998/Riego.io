@@ -6,4 +6,6 @@ extern long pollTime;
 extern struct sSENSOR Sensor[];
 extern int NUMBER_OF_SENSORS;
 
+extern sCOUNTER Counter;
+
 #endif

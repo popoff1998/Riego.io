@@ -174,3 +174,42 @@ void receive_sensor_INFO(MyMessage msg)
     send(_Sensor.msg->set(lux,1));
   }
 #endif
+
+#ifdef HAVE_COUNTER
+void isr_counter()
+{
+  Serial.println("ENTRANDO EN ISR");
+  Counter.pulses++;
+  if (Counter.pulses > Counter.pulsesForUnit)
+  {
+    Counter.pulses=0;
+    Counter.volume++;
+    Counter.flow = 1.0 / float(now() - Counter.last);
+    Counter.last = now();
+    #ifdef DEBUG
+      Serial.print(Counter.desc);Serial.print(" ");Serial.print(Counter.volume);Serial.print(" ");Serial.print(Counter.unitDesc);Serial.print(" ");Serial.print(Counter.flow);Serial.print(" ");Serial.print(Counter.unitDesc);Serial.println("/seg");
+    #endif
+  }
+}
+
+void setup_counter()
+{
+  Counter.msgVolume = new MyMessage(Counter.id,V_VOLUME);
+  Counter.msgFlow = new MyMessage(Counter.id,V_FLOW);
+
+  pinMode(Counter.pin, INPUT_PULLUP);
+  Counter.last = now();
+  attachInterrupt(digitalPinToInterrupt(Counter.pin),isr_counter, Counter.mode);
+  Serial.println("Saliendo de setup counter");
+}
+
+void process_counter()
+{
+  #ifdef DEBUG
+    Serial.print("CONTADOR AGUA: ");Serial.print(Counter.volume);Serial.print(" litros, Flujo: ");Serial.println(Counter.flow);
+  #endif
+  send(Counter.msgVolume->set(Counter.volume,3));
+  send(Counter.msgFlow->set(Counter.flow,4));
+}
+
+#endif

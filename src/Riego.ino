@@ -90,6 +90,12 @@ void presentSensors(sSENSOR Sensor[], int nSensors)
   }
 }
 
+void presentCounter()
+{
+  Serial.println("Presentando contador");
+  present(Counter.id,S_WATER,Counter.desc);
+}
+
 void receive(const MyMessage &message) {
   // Procesamos los mensajes V_LIGTH
   if (message.type==V_LIGHT) {
@@ -119,6 +125,9 @@ void presentation()
   sendSketchInfo(SKETCH_NAME, SKETCH_VERSION);
   presentRelays(Rele,NUMBER_OF_RELAYS);
   presentSensors(Sensor,NUMBER_OF_SENSORS);
+  #ifdef HAVE_COUNTER
+    presentCounter();
+  #endif
   Presented = true;
   Serial.println("Finalizando presentacion");
 }
@@ -132,6 +141,10 @@ void setup()
    Serial.println("start call SETUP");
    initRelays(Rele,NUMBER_OF_RELAYS);
    initSensors(Sensor,NUMBER_OF_SENSORS);
+  //Para el contador
+  #ifdef HAVE_COUNTER
+   setup_counter();
+  #endif
    Serial.println("End call Setup");
 }
 
@@ -146,6 +159,10 @@ void loop() {
     wait(POLL_TIME);
     return;
   }
+    //Procesar el contador
+  #ifdef HAVE_COUNTER
+    process_counter();
+  #endif
     //Bucle para procesar todos los sensores
   for (int i=0; i<NUMBER_OF_SENSORS; i++) {
     //Creamos el mensaje
