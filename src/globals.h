@@ -7,8 +7,6 @@ bool Presented;
 long pollTime;
 
 //Variable del contador
-struct sCOUNTER Counter =   {30,18,15,0,0,0,0.0,"Litros","CONTADOR AGUA",RISING,0,0};
-
-
-
+//                           id,pin,unitDesc,desc           ,mV,mF,mode  ,MAXFLOW ,MILLISZEROFLOW, DEBOUNCEMICROSECS, PULSESFORLITER, Diez ceros
+struct sCOUNTER Counter =   {30,18 ,"Litros","CONTADOR AGUA",0 ,0 ,RISING,140    ,10000,          1000L,              450,            0,0,0,0,0,0,0,0,0,0};
 #endif

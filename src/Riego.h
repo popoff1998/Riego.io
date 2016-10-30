@@ -62,16 +62,25 @@ struct sSENSOR {
 struct sCOUNTER {
   int id;
   int pin;
-  int pulsesForUnit;
-  unsigned long  pulses;
-  double  volume;
-  time_t last;
-  float flow;
   char unitDesc[20];
   char desc[50];
-  int mode;
   MyMessage *msgVolume;
   MyMessage *msgFlow;
+  int mode;
+            unsigned  long        MAXFLOW;
+            unsigned  long        MILLISZEROFLOW;
+            unsigned  long        DEBOUNCEMICROSECS;
+                      long        PULSESFORLITER;
+  volatile  unsigned  long        lastBlink;
+  volatile  unsigned  long        newBlink;
+                      double      volume;
+                      double      oldVolume;
+  volatile            double      flow;
+                      double      oldFlow;
+            unsigned  long        lastSend;
+            unsigned  long        lastPulse;
+  volatile  unsigned  long        pulseCount;
+            unsigned  long        oldPulseCount;
 };
 
 //Defines varios
@@ -101,9 +110,11 @@ struct sCOUNTER {
 #define S_MEMORY_FREE 2
 
 //Opciones de depuracion
-#define MY_DEBUG
-#define EXTRADEBUG
-#define DEBUG
+//#define MY_DEBUG
+//#define EXTRADEBUG
+//#define DEBUG
+#define COUNTERDEBUG
+//#define COUNTEREXTRADEBUG
 
 //Funciones
 void setup_sensor_DHT11(sSENSOR);

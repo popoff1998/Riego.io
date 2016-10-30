@@ -178,38 +178,94 @@ void receive_sensor_INFO(MyMessage msg)
 #ifdef HAVE_COUNTER
 void isr_counter()
 {
-  Serial.println("ENTRANDO EN ISR");
-  Counter.pulses++;
-  if (Counter.pulses > Counter.pulsesForUnit)
+  #ifdef COUNTEREXTRADEBUG
+    Serial.println("ENTRANDO EN ISR");
+  #endif
+
+  Counter.newBlink = micros();
+  unsigned long interval = Counter.newBlink - Counter.lastBlink;
+
+  if (interval != 0)
   {
-    Counter.pulses=0;
-    Counter.volume++;
-    Counter.flow = 1.0 / float(now() - Counter.last);
-    Counter.last = now();
-    #ifdef DEBUG
-      Serial.print(Counter.desc);Serial.print(" ");Serial.print(Counter.volume);Serial.print(" ");Serial.print(Counter.unitDesc);Serial.print(" ");Serial.print(Counter.flow);Serial.print(" ");Serial.print(Counter.unitDesc);Serial.println("/seg");
-    #endif
+    Counter.lastPulse = millis();
+    //Si el tiempo es menor al esperado ignoramos el pulso
+    if (interval < Counter.DEBOUNCEMICROSECS)
+    {
+      #ifdef COUNTERDEBUG
+        Serial.println("DEBOUNCED");
+      #endif
+      return;
+    }
+    //El flujo instantaneo por minuto será: 60 seg * 1.000.000 microsec dividido entre el intervalo en microsegundos
+    Counter.flow = (60000000.0 / (float)interval) / (float)Counter.PULSESFORLITER;
   }
+  Counter.lastBlink = Counter.newBlink;
+  Counter.pulseCount++;
+  #ifdef COUNTEREXTRADEBUG
+    Serial.print("ISR pulsecount:"); Serial.println(Counter.pulseCount);
+  #endif
 }
 
 void setup_counter()
 {
   Counter.msgVolume = new MyMessage(Counter.id,V_VOLUME);
   Counter.msgFlow = new MyMessage(Counter.id,V_FLOW);
-
   pinMode(Counter.pin, INPUT_PULLUP);
-  Counter.last = now();
+  Counter.pulseCount = Counter.oldPulseCount = 0;
+  Counter.lastSend = Counter.lastPulse = millis();
   attachInterrupt(digitalPinToInterrupt(Counter.pin),isr_counter, Counter.mode);
   Serial.println("Saliendo de setup counter");
 }
 
 void process_counter()
 {
-  #ifdef DEBUG
-    Serial.print("CONTADOR AGUA: ");Serial.print(Counter.volume);Serial.print(" litros, Flujo: ");Serial.println(Counter.flow);
-  #endif
-  send(Counter.msgVolume->set(Counter.volume,3));
-  send(Counter.msgFlow->set(Counter.flow,4));
-}
+  unsigned long currentTime = millis();
+  //Deshabilitamos las interrupciones
+  cli();
+  //Esta linea sobra creo
+  Counter.lastSend = currentTime;
 
+  if (Counter.flow != Counter.oldFlow)
+  {
+      Counter.oldFlow = Counter.flow;
+      #ifdef COUNTERDEBUG
+        Serial.print("l/min:"); Serial.println(Counter.flow);
+      #endif
+
+      if (Counter.flow < Counter.MAXFLOW)
+      {
+        send(Counter.msgFlow->set(Counter.flow,2));
+      }
+      else
+      {
+        #ifdef COUNTERDEBUG
+          Serial.print("FLUJO EXCEDIDO:"); Serial.println(Counter.flow);
+        #endif
+      }
+  }
+
+  if (currentTime - Counter.lastPulse > Counter.MILLISZEROFLOW) Counter.flow=0;
+
+  if (Counter.pulseCount !=  Counter.oldPulseCount)
+  {
+    Counter.oldPulseCount = Counter.pulseCount;
+    #ifdef COUNTERDEBUG
+      Serial.print("pulsecount:"); Serial.println(Counter.pulseCount);
+    #endif
+    //Mandar los pulsos al gw
+    //Vendra aqui pero no se si es necesario
+
+    Counter.volume = (((double)Counter.pulseCount / (double)Counter.PULSESFORLITER)) / 1000.0;
+    if (Counter.volume != Counter.oldVolume)
+    {
+      Counter.oldVolume = Counter.volume;
+      #ifdef COUNTERDEBUG
+        Serial.print("volume:"); Serial.println(Counter.volume,3);
+      #endif
+      send(Counter.msgVolume->set(Counter.volume,3));
+    }
+  }
+    //Habilitamos las interrupciones
+  sei();
+}
 #endif
