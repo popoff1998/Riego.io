@@ -110,8 +110,8 @@ struct sCOUNTER {
 #define S_MEMORY_FREE 2
 
 //Opciones de depuracion
-//#define MY_DEBUG
-//#define EXTRADEBUG
+#define MY_DEBUG
+#define EXTRADEBUG
 //#define DEBUG
 #define COUNTERDEBUG
 //#define COUNTEREXTRADEBUG

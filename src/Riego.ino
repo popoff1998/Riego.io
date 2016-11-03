@@ -12,6 +12,14 @@
 
 #include <MySensors.h>
 
+int getRelayIdxFromId(int id)
+{
+  for(int i=0; i<NUMBER_OF_RELAYS;i++) {
+    if(Rele[i].id == id) return i;
+  }
+  return NOTFOUND;
+}
+
 void initRelays(const sRELE Rele[], int nRelays)
 {
   for (int i=0 ; i<nRelays; i++) {
@@ -98,23 +106,33 @@ void presentCounter()
 
 void receive(const MyMessage &message) {
   // Procesamos los mensajes V_LIGTH
+  int idx;
   if (message.type==V_LIGHT) {
+    //Debemos traducir message.sensor al indice del array
+    idx = getRelayIdxFromId(message.sensor);
     // Cambiar estado del rele
-    digitalWrite(Rele[message.sensor].pin, message.getBool()?Rele[message.sensor].ON:Rele[message.sensor].OFF);
+    #ifdef EXTRADEBUG
+      Serial.print(Rele[idx].desc);Serial.print(": PIN= ");Serial.println(Rele[idx].pin);
+      Serial.print("BOOL= ");Serial.println(message.getBool());
+    #endif
+
+    digitalWrite(Rele[idx].pin, message.getBool()?Rele[idx].ON:Rele[idx].OFF);
     // Almacenar estado en la eeprom independientemente de initState (por si acaso)
-    saveState(message.sensor, message.getBool());
+    saveState(idx, message.getBool());
     #ifdef DEBUG
      // Escribir informacion de debug
      Serial.print("Cambio entrante para sensor:"); Serial.print(message.sensor); Serial.print(", Nuevo status: "); Serial.println(message.getBool());
     #endif
   }
   //Procesamos los mensajes V_TEXT
-  if (message.type==V_TEXT) {
-    #ifdef EXTRADEBUG
-      Serial.print("Mensaje V_TEXT sensor: ");Serial.print(message.sensor);Serial.print(" valor: ");Serial.println(message.getLong());
-    #endif
-    receive_sensor_INFO(message);
-  }
+  #ifdef HAVE_INFO
+    if (message.type==V_TEXT) {
+      #ifdef EXTRADEBUG
+        Serial.print("Mensaje V_TEXT sensor: ");Serial.print(message.sensor);Serial.print(" valor: ");Serial.println(message.getLong());
+      #endif
+      receive_sensor_INFO(message);
+    }
+  #endif
 }
 
 void presentation()

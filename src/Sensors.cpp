@@ -181,10 +181,12 @@ void isr_counter()
   #ifdef COUNTEREXTRADEBUG
     Serial.println("ENTRANDO EN ISR");
   #endif
-
+  cli();
   Counter.newBlink = micros();
   unsigned long interval = Counter.newBlink - Counter.lastBlink;
-
+  Counter.lastBlink = Counter.newBlink;
+  Counter.pulseCount++;
+  sei();
   if (interval != 0)
   {
     Counter.lastPulse = millis();
@@ -197,10 +199,8 @@ void isr_counter()
       return;
     }
     //El flujo instantaneo por minuto será: 60 seg * 1.000.000 microsec dividido entre el intervalo en microsegundos
-    Counter.flow = (60000000.0 / (float)interval) / (float)Counter.PULSESFORLITER;
+    Counter.flow = 60000000.0 / ((float)interval * (float)Counter.PULSESFORLITER);
   }
-  Counter.lastBlink = Counter.newBlink;
-  Counter.pulseCount++;
   #ifdef COUNTEREXTRADEBUG
     Serial.print("ISR pulsecount:"); Serial.println(Counter.pulseCount);
   #endif

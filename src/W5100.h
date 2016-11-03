@@ -19,12 +19,17 @@
 #include "Riego.h"
 
 //Variables de actuadores
-#define NUMBER_OF_RELAYS 4
+#define NUMBER_OF_RELAYS 9
 
 struct sRELE Rele [] = {  {0, 13 , "LED", HIGH, LOW, KEEP, true},
-                          {1, 31 , "RELE GOTEROS ALTOS", LOW, HIGH, SETOFF, true},
-                          {2, 33 , "RELE ASPERSOR FONDO", LOW, HIGH, SETOFF, true},
-                          {3, 35 , "LUZ DEL PORCHE", LOW, HIGH, KEEP, true}
+                          {1, 45 , "RELE GOTEROS ALTOS", LOW, HIGH, SETOFF, true},
+                          {2, 43 , "RELE ASPERSOR FONDO", LOW, HIGH, SETOFF, true},
+                          {3, 41 , "LUZ DEL PORCHE", LOW, HIGH, SETOFF, true},
+                          {4, 39 , "RELE4", LOW, HIGH, SETOFF, true},
+                          {5, 37 , "RELE5", LOW, HIGH, SETOFF, true},
+                          {6, 35 , "RELE6", LOW, HIGH, SETOFF, true},
+                          {16, 33 , "RELE7", LOW, HIGH, SETOFF, true},
+                          {17, 31 , "RELE8", LOW, HIGH, SETOFF, true}
                        };
 
 //Variables de los sensores
