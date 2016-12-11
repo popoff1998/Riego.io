@@ -175,6 +175,31 @@ void receive_sensor_INFO(MyMessage msg)
   }
 #endif
 
+#ifdef HAVE_YL38
+  void setup_sensor_YL38(sSENSOR _Sensor)
+  {
+    if(_Sensor.flags.poweronread)
+    {
+      #ifdef DEBUG
+        Serial.print("YL38 ");Serial.print(_Sensor.desc);Serial.println(" configurado como POWERONREAD");
+      #endif
+      pinMode(_Sensor.auxPin, OUTPUT);
+    }
+  }
+
+  void process_sensor_YL38(sSENSOR _Sensor)
+  {
+    if(_Sensor.flags.poweronread) digitalWrite(_Sensor.auxPin, 1);
+    int sensorValue =  analogRead(_Sensor.pin);
+    if(_Sensor.flags.poweronread) digitalWrite(_Sensor.auxPin, 0);
+    float hum =  (float)((1024.0 - (float)sensorValue) / 10.24);
+    #ifdef DEBUG
+      Serial.print(" HUM SOIL: ");Serial.println(hum);
+    #endif
+    send(_Sensor.msg->set(hum,1));
+  }
+#endif
+
 #ifdef HAVE_COUNTER
 void isr_counter()
 {

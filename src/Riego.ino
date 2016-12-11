@@ -78,6 +78,11 @@ void initSensors(sSENSOR Sensor[], int nSensors)
             setup_sensor_DHT11(Sensor[i]);
           } break;
         #endif
+        #ifdef HAVE_YL38
+          case YL38: {
+            setup_sensor_YL38(Sensor[i]);
+          } break;
+        #endif
         #ifdef HAVE_INFO
           case INFO: {
             setup_sensor_INFO(Sensor[i]);
@@ -158,7 +163,14 @@ void setup()
   //Para los reles
    Serial.println("start call SETUP");
    initRelays(Rele,NUMBER_OF_RELAYS);
+   return(0);
+   #ifdef TRACE
+    Serial.println("Despues de initRelays");
+   #endif
    initSensors(Sensor,NUMBER_OF_SENSORS);
+   #ifdef TRACE
+    Serial.println("Despues de initSensors");
+   #endif
   //Para el contador
   #ifdef HAVE_COUNTER
    setup_counter();
@@ -199,6 +211,11 @@ void loop() {
         case S_PHOTORESISTOR:
           #ifdef HAVE_PHOTORESISTOR
             process_sensor_PHOTORESISTOR(Sensor[i]);
+          #endif
+          break;
+        case YL38:
+          #ifdef HAVE_YL38
+            process_sensor_YL38(Sensor[i]);
           #endif
           break;
         case INFO:

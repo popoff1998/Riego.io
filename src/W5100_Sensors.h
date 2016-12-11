@@ -6,5 +6,6 @@
 #define HAVE_PHOTORESISTOR
 #define HAVE_INFO
 #define HAVE_COUNTER
+#define HAVE_YL68
 
 #endif

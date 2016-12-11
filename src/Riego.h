@@ -18,6 +18,7 @@
 enum {
   ENABLED = 0x01,
   REQUESTABLE = 0x02,
+  POWERONREAD = 0x03,
 };
 
 typedef union
@@ -27,7 +28,7 @@ typedef union
   {
     uint8_t enabled :     1,
             requestable : 1,
-            spare5 :      1,
+            poweronread : 1,
             spare4 :      1,
             spare3 :      1,
             spare2 :      1,
@@ -50,6 +51,7 @@ struct sRELE {
 struct sSENSOR {
   int id;
   int pin;
+  int auxPin;
   int MSpresentType;
   int MSmessageType;
   int HWtype;
@@ -103,6 +105,7 @@ struct sCOUNTER {
 #define S_PHOTORESISTOR 3
 #define INFO 4
 #define S_ARDUINO_TEMP 5
+#define YL38 6
 
 //Defines de tios HWsubtype
 #define NONE 0
@@ -112,19 +115,22 @@ struct sCOUNTER {
 //Opciones de depuracion
 #define MY_DEBUG
 #define EXTRADEBUG
-//#define DEBUG
+#define DEBUG
 #define COUNTERDEBUG
-//#define COUNTEREXTRADEBUG
+#define COUNTEREXTRADEBUG
+#define TRACE
 
 //Funciones
 void setup_sensor_DHT11(sSENSOR);
 void setup_sensor_INFO(sSENSOR);
+void setup_sensor_YL38(sSENSOR);
 
 void process_sensor_DHT11(sSENSOR);
 void process_sensor_18B20(sSENSOR);
 void process_sensor_PHOTORESISTOR(sSENSOR);
 void process_sensor_INFO(sSENSOR);
 void process_sensor_arduino_temp(sSENSOR);
+void process_sensor_YL38(sSENSOR);
 
 
 void receive_sensor_INFO(MyMessage);
